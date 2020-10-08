@@ -20,18 +20,24 @@ knitr::opts_chunk$set(echo = TRUE)
 
 ## 1. Merge MCorperation data
 ```
-* How to merge multiple excel files into one?
-* Searching Keywords "Multiple Excel Files import in R"
+- How to merge multiple excel files into one?
+- Searching Keywords is "Multiple Excel Files import in R"
 ```
 
-아무것도 모르는 상태에서 실행해보자  
+아무것도 모르는 상태에서 실행해보자.  
 구글링해서 찾은 정보는 multiple excel sheet in one file into one sheet, 또는 multiple csv files into one csv file뿐..  
 어떻게 해야 실행될까?  
 
-엑셀을 여는 함수도 다양함: openxlsx, readxl, xlsx
+무작정 코드부터 입력해서 총 5번의 오류를 만들었다.  
+해결하지 못한 코드도 저장해두고, r과 더 친해진 다음 오류 발생 이유를 하나씩 뜯어볼 계획이다.  
+
+전체 파일을 업로드하기엔 용량이 매우 커서 {r} 실행 코드는 사용하지 않았다.  
+
+* **어려웠던 이유**
+- 구글링해서 코드를 찾았지만, 어느 것이 함수고 어느 부분에 내 데이터를 넣어야 하는지 헷갈렸다.  
 
 
-### 1. 첫 번째 시도
+### 1.1 첫 번째 시도
 readxl과 purrr(반복 작업 처리 tidyverse 패키지)을 이용
 ```
 library(readxl)
@@ -54,7 +60,7 @@ df <- map_df(file.list, read.csv, .id = "id")
 ```
 
 
-### 2. 두 번째 시도
+### 1.2 두 번째 시도
 readxl과 list.files로 파일을 합쳤으나 tbl 확인 시, 0 x 0으로 데이터가 뜨지 않음  
 sapply 함수: lapply 함수에서 사용자 편의성을 고려한 함수  
 sapply(, simplity = F)인 경우 lapply()와 같은 결과 출력
@@ -72,7 +78,7 @@ tbl <- sapply(files, read_excel, simplify = FALSE) %>%
 ```
 
 
-### 3. 세 번째 시도
+### 1.3 세 번째 시도
 
 getwd()
 
@@ -86,7 +92,7 @@ read_xlsx(path = "C:/Users/naeun/Documents/Bigdata/github/contest/source/sample/
 ```
 
 
-### 4. 네 번째 시도
+### 1.4 네 번째 시도
 dir 함수로 파일 경로를 읽어서 합치려고 했으나 file_list가 읽어지지 않음  
 ``` 
 getwd()
@@ -114,7 +120,7 @@ sapply(Files, read.xlsx2(sheetIndex=8))
 ```
 
 
-### 5. 다섯 번째 시도
+### 1.5 다섯 번째 시도
 list.files 함수로 `data_files' 파일 뭉치까지 만듦  
 lapply 함수를 공부한 뒤, 여섯 번째 시도에서 해결함
 ```
@@ -135,7 +141,7 @@ list(data)
 ```
 
 
-### 6. 여섯 번째 시도_success!
+### 1.6 여섯 번째 시도_success!
 * 데이터 합치기: readxl과 lapply(list + apply: 실행 결과가 list 형태로 출력) 함수 사용
 * 데이터 추출하기: write_csv 사용  
 ```
