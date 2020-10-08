@@ -1,0 +1,180 @@
+---
+title: "KDX_contest"
+author: "ne_choi"
+date: '2020 10 8 '
+output:
+  html_document:
+   toc: true
+   toc_float:
+     collapsed: false
+     smooth_scroll: true
+   theme: united
+   highlight: textmate
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# KDX Contest
+
+## 1. Merge MCorperation data
+```
+* How to merge multiple excel files into one?
+* Searching Keywords "Multiple Excel Files import in R"
+```
+
+아무것도 모르는 상태에서 실행해보자  
+구글링해서 찾은 정보는 multiple excel sheet in one file into one sheet, 또는 multiple csv files into one csv file뿐..  
+어떻게 해야 실행될까?  
+
+엑셀을 여는 함수도 다양함: openxlsx, readxl, xlsx
+
+
+### 1. 첫 번째 시도
+readxl과 purrr(반복 작업 처리 tidyverse 패키지)을 이용
+```
+library(readxl)
+file.list <- list.files(pattern = '*.xlsx')
+df.list <- lapply(file.list, read_excel)
+```
+
+```
+file.list <- list.files(pattern = '*.xlsx', recursive = TRUE)
+```
+
+```
+df.list <- sapply(file.list, read.csv, simplify = FALSE)
+
+library(purrr)
+file.list <- list.files(pattern='*.csv')
+file.list <- setNames(file.list, file.list)
+
+df <- map_df(file.list, read.csv, .id = "id")
+```
+
+
+### 2. 두 번째 시도
+readxl과 list.files로 파일을 합쳤으나 tbl 확인 시, 0 x 0으로 데이터가 뜨지 않음  
+sapply 함수: lapply 함수에서 사용자 편의성을 고려한 함수  
+sapply(, simplity = F)인 경우 lapply()와 같은 결과 출력
+
+```
+library(readxl)
+library(dplyr)
+
+files <- list.files(path = "~/category_data", pattern = "*.xlsx", full.names = T)
+
+tbl <- sapply(files, read_excel, simplify = FALSE) %>%
+  bind_rows(.id = "id")
+
+# 참고링크: https://blog.exploratory.io/how-to-read-multiple-excel-or-csv-files-together-42af5d314a10    
+```
+
+
+### 3. 세 번째 시도
+
+getwd()
+
+```
+bind_rows(.id = "files")
+
+library(tidyverse)
+
+read_xlsx(path = "C:/Users/naeun/Documents/Bigdata/github/contest/source/sample/Mcorporation/categoty_data")
+=> error
+```
+
+
+### 4. 네 번째 시도
+dir 함수로 파일 경로를 읽어서 합치려고 했으나 file_list가 읽어지지 않음  
+``` 
+getwd()
+
+?readxl
+
+dir <- ("C:Users/naeun/Documents/Bigdata/contest/sample/Mcorporation/category_data)
+file_list <- list.files(dir)
+
+file_list
+
+data <- data.frame()
+
+for(file in file_list) {
+  print(file)
+  temp <- readxl(paste(dir, file, sep = "\\"), header=TRUE, sep=",", stringsAsFactors=FALSE)
+  data <- rbind(data, temp)
+}
+
+
+require(.xlsx)
+
+Files=list.files(path="I:/Marcs_Discretinization_try_1/Attempt1/Actual     Data", pattern=".xlsx")
+sapply(Files, read.xlsx2(sheetIndex=8))   
+```
+
+
+### 5. 다섯 번째 시도
+list.files 함수로 `data_files' 파일 뭉치까지 만듦  
+lapply 함수를 공부한 뒤, 여섯 번째 시도에서 해결함
+```
+install.packages("xlsx")
+library(xlsx)  
+
+data_files <- list.files(pattern = "*.xlsx")
+
+data_files
+
+data <- lapply(file_list, function(i){
+  x = read_excel(i, sheet = 1)  
+
+for (i in data.files) {
+    data <- rbind(data, read.xlsx(i, sheetIndex = 1))}  
+
+list(data)
+```
+
+
+### 6. 여섯 번째 시도_success!
+* 데이터 합치기: readxl과 lapply(list + apply: 실행 결과가 list 형태로 출력) 함수 사용
+* 데이터 추출하기: write_csv 사용  
+```
+# readxl, tidyr 함수 라이브러리
+library(readxl)
+library(tidyr)
+
+# 기본 경로: multiple excel files가 있는 곳으로 지정
+setwd("~/Bigdata/contest/sample/Mcorporation/category_data")
+
+# 'list.files', 'pattern'을 사용해서 폴더 내 '.xlsx' 파일만 불러오기
+file_list <- list.files(pattern = "*.xlsx")
+file_list # 확인해보면 64개 파일이 조회됨
+
+# 'mcorporation_data' 만들기
+mcorporation_data <- lapply(file_list, function(i){
+  x = read_excel(i, sheet = 1)
+  x$file = i
+  x})
+
+# 데이터 확인하기
+mcorporation_data[[2]] # 열별 행 값 확인 가능
+mcorporation_data = do.call("rbind.data.frame", mcorporation_data) # 여러 데이터 프레임을 위/아래로 묶기
+
+mcorporation_data # 확인해보기
+```
+
+```
+library("xlsx")
+
+# xlsx 파일로 추출되면 좋으나 용량이 커서 실패한 것 같음(cf. XLS cannot handle more than 64k rows (65535 as the error indicates))
+
+# xlsx 파일 추출 방법_1
+write.xlsx(mcorporation_data, "~/Bigdata/contest/sample/Mcorporation/category_data/mcorporation_data.xlsx",
+           sheetName = "Sheet1", append = FALSE)
+
+# xlsx 파일 추출 방법_2
+write.xlsx2(mcorporation_data, "~/Bigdata/contest/sample/Mcorporation/category_data/mcorporation_data.xlsx", sheetName = "Sheet1", col.names = TRUE, row.names = TRUE, append = FALSE)
+
+# csv 파일로 추출하니 성공
+write.csv(mcorporation_data, "mcorporation_data.csv")
+```
