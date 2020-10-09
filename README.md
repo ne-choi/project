@@ -13,9 +13,9 @@ KDX가 제공하는 다양한 소비 데이터(온라인 쇼핑, 오프라인 �
 공공과 민간을 가리지 않고 많은 분야에 활용될 수 있는 결과가 나온다면 더욱 환영입니다.  
 ```
 
-![img_kdx1](kdx_event1.png)
+![img_kdx1](KDX/img/kdx_event1.png)
 
-![img_kdx2](kdx_evetn2.png)
+![img_kdx2](KDX/img/kdx_evetn2.png)
 
 1. Merge MCorporation data
 merge multiple excel(.xlsx) files into one file
