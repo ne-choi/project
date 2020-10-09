@@ -25,20 +25,24 @@ knitr::opts_chunk$set(echo = TRUE)
 ```
 
 아무것도 모르는 상태에서 실행해보자.  
-구글링해서 찾은 정보는 multiple excel sheet in one file into one sheet, 또는 multiple csv files into one csv file뿐..  
-어떻게 해야 실행될까?  
 
-무작정 코드부터 입력해서 총 5번의 오류를 만들었다.  
+구글링해서 찾은 정보는 multiple excel sheet in one file into one sheet, 또는 multiple csv files into one csv file뿐.. 어떻게 해야 실행될까?  
+
+개별 파일명을 입력해서 모든 엑셀 파일을 읽는 방법이 있었는데, 합쳐야 하는 파일이 64개라 시도조차 하지 않았다.  
+
+무작정 코드부터 입력해보았고, 총 5번의 오류를 만들었다.  
 해결하지 못한 코드도 저장해두고, r과 더 친해진 다음 오류 발생 이유를 하나씩 뜯어볼 계획이다.  
 
 전체 파일을 업로드하기엔 용량이 매우 커서 {r} 실행 코드는 사용하지 않았다.  
 
-* **어려웠던 이유**
-- 구글링해서 코드를 찾았지만, 어느 것이 함수고 어느 부분에 내 데이터를 넣어야 하는지 헷갈렸다.  
+
+**어려웠던 이유**
+: 구글링해서 코드를 찾았지만, 예시 코드 중 어디가 내 데이터를 넣어야 하는 부분인지 헷갈렸다.  
 
 
 ### 1.1 첫 번째 시도
-readxl과 purrr(반복 작업 처리 tidyverse 패키지)을 이용
+* readxl과 purrr(반복 작업 처리 tidyverse 패키지)을 이용
+
 ```
 library(readxl)
 file.list <- list.files(pattern = '*.xlsx')
@@ -61,9 +65,9 @@ df <- map_df(file.list, read.csv, .id = "id")
 
 
 ### 1.2 두 번째 시도
-readxl과 list.files로 파일을 합쳤으나 tbl 확인 시, 0 x 0으로 데이터가 뜨지 않음  
-sapply 함수: lapply 함수에서 사용자 편의성을 고려한 함수  
-sapply(, simplity = F)인 경우 lapply()와 같은 결과 출력
+* readxl과 list.files로 파일을 합쳤으나 tbl 확인 시, 0 x 0으로 데이터가 뜨지 않음  
+* sapply 함수: lapply 함수에서 사용자 편의성을 고려한 함수  
+* sapply(, simplity = F)인 경우 lapply()와 같은 결과 출력
 
 ```
 library(readxl)
@@ -80,20 +84,24 @@ tbl <- sapply(files, read_excel, simplify = FALSE) %>%
 
 ### 1.3 세 번째 시도
 
-getwd()
+* bind_com 함수를 이용하여 묶어보려고 했으나 실패
 
 ```
-bind_rows(.id = "files")
+library(dplyr)
+library(readxl)
+
+bind_cols(.id = "files")
 
 library(tidyverse)
 
-read_xlsx(path = "C:/Users/naeun/Documents/Bigdata/github/contest/source/sample/Mcorporation/categoty_data")
+read_xlsx(path = "Mcorporation/categoty_data")
+
 => error
 ```
 
 
 ### 1.4 네 번째 시도
-dir 함수로 파일 경로를 읽어서 합치려고 했으나 file_list가 읽어지지 않음  
+* dir 함수로 파일 경로를 읽어서 합치려고 했으나 file_list가 읽어지지 않음  
 ``` 
 getwd()
 
@@ -121,8 +129,8 @@ sapply(Files, read.xlsx2(sheetIndex=8))
 
 
 ### 1.5 다섯 번째 시도
-list.files 함수로 `data_files' 파일 뭉치까지 만듦  
-lapply 함수를 공부한 뒤, 여섯 번째 시도에서 해결함
+* list.files 함수로 `data_files' 파일 뭉치까지 만듦  
+* lapply 함수를 공부한 뒤, 여섯 번째 시도에서 해결함
 ```
 install.packages("xlsx")
 library(xlsx)  
@@ -142,7 +150,7 @@ list(data)
 
 
 ### 1.6 여섯 번째 시도_success!
-* 데이터 합치기: readxl과 lapply(list + apply: 실행 결과가 list 형태로 출력) 함수 사용
+* 데이터 합치기: readxl과 lapply(list + apply: 실행 결과가 list 형태로 출력) 함수 사용  
 * 데이터 추출하기: write_csv 사용  
 ```
 # readxl, tidyr 함수 라이브러리
@@ -170,17 +178,22 @@ mcorporation_data # 확인해보기
 ```
 
 ```
+# 데이터 추출하기
+
 library("xlsx")
 
-# xlsx 파일로 추출되면 좋으나 용량이 커서 실패한 것 같음(cf. XLS cannot handle more than 64k rows (65535 as the error indicates))
-
-# xlsx 파일 추출 방법_1
+## xlsx 파일 추출 방법_1
 write.xlsx(mcorporation_data, "~/Bigdata/contest/sample/Mcorporation/category_data/mcorporation_data.xlsx",
            sheetName = "Sheet1", append = FALSE)
 
-# xlsx 파일 추출 방법_2
+## xlsx 파일 추출 방법_2
 write.xlsx2(mcorporation_data, "~/Bigdata/contest/sample/Mcorporation/category_data/mcorporation_data.xlsx", sheetName = "Sheet1", col.names = TRUE, row.names = TRUE, append = FALSE)
 
-# csv 파일로 추출하니 성공
+엑셀 파일 추출 시, write.xlsx2 함수가 조금 더 빠르다고 함
+단, xlsx 파일로 추출하려고 하니 행이 많아서 파일이 생성되지 않음  
+(cf. XLS cannot handle more than 64k rows (65535 as the error indicates))
+csv 파일로 생성하여 문제를 해결함
+
+# csv 파일 추출 방법
 write.csv(mcorporation_data, "mcorporation_data.csv")
 ```
