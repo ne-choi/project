@@ -1543,8 +1543,8 @@ div.tocify {
 <dd>구글링해서 코드를 찾았지만, 예시 코드 중 어디가 내 데이터를 넣어야 하는 부분인지 헷갈렸다.
 </dd>
 </dl>
-<div id="첫-번째-시도" class="section level3">
-<h3>1.1 첫 번째 시도</h3>
+<div id="첫-번째-시도_실패" class="section level3">
+<h3>1.1 첫 번째 시도_실패</h3>
 <ul>
 <li>readxl과 purrr(반복 작업 처리 tidyverse 패키지)을 이용</li>
 </ul>
@@ -1560,8 +1560,8 @@ file.list &lt;- setNames(file.list, file.list)
 
 df &lt;- map_df(file.list, read.csv, .id = &quot;id&quot;)</code></pre>
 </div>
-<div id="두-번째-시도" class="section level3">
-<h3>1.2 두 번째 시도</h3>
+<div id="두-번째-시도_실패" class="section level3">
+<h3>1.2 두 번째 시도_실패</h3>
 <ul>
 <li>readxl과 list.files로 파일을 합쳤으나 tbl 확인 시, 0 x 0으로 데이터가 뜨지 않음<br />
 </li>
@@ -1579,8 +1579,8 @@ tbl &lt;- sapply(files, read_excel, simplify = FALSE) %&gt;%
 
 # 참고링크: https://blog.exploratory.io/how-to-read-multiple-excel-or-csv-files-together-42af5d314a10    </code></pre>
 </div>
-<div id="세-번째-시도" class="section level3">
-<h3>1.3 세 번째 시도</h3>
+<div id="세-번째-시도_실패" class="section level3">
+<h3>1.3 세 번째 시도_실패</h3>
 <ul>
 <li>bind_com 함수를 이용하여 묶어보려고 했으나 실패</li>
 </ul>
@@ -1595,8 +1595,8 @@ read_xlsx(path = &quot;Mcorporation/categoty_data&quot;)
 
 =&gt; error</code></pre>
 </div>
-<div id="네-번째-시도" class="section level3">
-<h3>1.4 네 번째 시도</h3>
+<div id="네-번째-시도_실패" class="section level3">
+<h3>1.4 네 번째 시도_실패</h3>
 <ul>
 <li>dir 함수로 파일 경로를 읽어서 합치려고 했으나 file_list가 읽어지지 않음<br />
 </li>
@@ -1624,12 +1624,13 @@ require(.xlsx)
 Files=list.files(path=&quot;I:/Marcs_Discretinization_try_1/Attempt1/Actual     Data&quot;, pattern=&quot;.xlsx&quot;)
 sapply(Files, read.xlsx2(sheetIndex=8))   </code></pre>
 </div>
-<div id="다섯-번째-시도" class="section level3">
-<h3>1.5 다섯 번째 시도</h3>
+<div id="다섯-번째-시도_실패" class="section level3">
+<h3>1.5 다섯 번째 시도_실패</h3>
 <ul>
 <li>list.files 함수로 `data_files’ 파일 뭉치까지 만듦<br />
 </li>
-<li>lapply 함수를 공부한 뒤, 여섯 번째 시도에서 해결함</li>
+<li>lapply 함수를 공부한 뒤, 여섯 번째 시도에서 해결<br />
+</li>
 </ul>
 <pre><code>install.packages(&quot;xlsx&quot;)
 library(xlsx)  
@@ -1646,20 +1647,19 @@ for (i in data.files) {
 
 list(data)</code></pre>
 </div>
-<div id="여섯-번째-시도_success" class="section level3">
-<h3>1.6 여섯 번째 시도_success!</h3>
+<div id="여섯-번째-시도_성공" class="section level3">
+<h3>1.6 여섯 번째 시도_성공</h3>
 <ul>
 <li>데이터 합치기: readxl과 lapply(list + apply: 실행 결과가 list 형태로 출력) 함수 사용<br />
 </li>
-<li>데이터 추출하기: write_csv 사용<br />
-</li>
+<li>데이터 추출하기: write_csv 사용</li>
 </ul>
 <pre><code># readxl, tidyr 함수 라이브러리
 library(readxl)
 library(tidyr)
 
 # 기본 경로: multiple excel files가 있는 곳으로 지정
-setwd(&quot;~/Bigdata/contest/sample/Mcorporation/category_data&quot;)
+setwd(&quot;~/Bigdata/contest/sample/Mcorporation/category_data&quot;) # setwd()하지 않고 list.files(path = &quot;~/) 방법으로 경로 지정해도 됨  
 
 # &#39;list.files&#39;, &#39;pattern&#39;을 사용해서 폴더 내 &#39;.xlsx&#39; 파일만 불러오기
 file_list &lt;- list.files(pattern = &quot;*.xlsx&quot;)
@@ -1669,7 +1669,7 @@ file_list # 확인해보면 64개 파일이 조회됨
 mcorporation_data &lt;- lapply(file_list, function(i){
   x = read_excel(i, sheet = 1)
   x$file = i
-  x})
+  x}
 
 # 데이터 확인하기
 mcorporation_data[[2]] # 열별 행 값 확인 가능
@@ -1694,6 +1694,18 @@ csv 파일로 생성하여 문제를 해결함
 
 # csv 파일 추출 방법
 write.csv(mcorporation_data, &quot;mcorporation_data.csv&quot;)</code></pre>
+</div>
+<div id="추가-정답" class="section level3">
+<h3>1.7 추가 정답</h3>
+<pre><code>library(readxl)
+library(dplyr)
+
+files &lt;- list.files(pattern = &quot;*.xlsx&quot;, full.names = T) # 엑셀 파일 묶기
+products &lt;- sapply(files, read_excel, simplify=FALSE) %&gt;% # sapply&amp;bind_rows 함수로 엑셀 합치기
+  bind_rows(.id = &quot;id&quot;)
+glimpse(products) # 확인해보기  
+
+# 위 csv 파일 추출 방법 이용하여 csv 파일 추출하면 됨  </code></pre>
 </div>
 </div>
 </div>

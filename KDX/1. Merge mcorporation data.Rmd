@@ -40,8 +40,8 @@ knitr::opts_chunk$set(echo = TRUE)
 : 구글링해서 코드를 찾았지만, 예시 코드 중 어디가 내 데이터를 넣어야 하는 부분인지 헷갈렸다.  
 
 
-### 1.1 첫 번째 시도
-* readxl과 purrr(반복 작업 처리 tidyverse 패키지)을 이용
+### 1.1 첫 번째 시도_실패
+* readxl과 purrr(반복 작업 처리 tidyverse 패키지)을 이용  
 
 ```
 library(readxl)
@@ -64,10 +64,10 @@ df <- map_df(file.list, read.csv, .id = "id")
 ```
 
 
-### 1.2 두 번째 시도
+### 1.2 두 번째 시도_실패
 * readxl과 list.files로 파일을 합쳤으나 tbl 확인 시, 0 x 0으로 데이터가 뜨지 않음  
 * sapply 함수: lapply 함수에서 사용자 편의성을 고려한 함수  
-* sapply(, simplity = F)인 경우 lapply()와 같은 결과 출력
+* sapply(, simplity = F)인 경우 lapply()와 같은 결과 출력  
 
 ```
 library(readxl)
@@ -82,9 +82,8 @@ tbl <- sapply(files, read_excel, simplify = FALSE) %>%
 ```
 
 
-### 1.3 세 번째 시도
-
-* bind_com 함수를 이용하여 묶어보려고 했으나 실패
+### 1.3 세 번째 시도_실패  
+* bind_com 함수를 이용하여 묶어보려고 했으나 실패  
 
 ```
 library(dplyr)
@@ -100,7 +99,7 @@ read_xlsx(path = "Mcorporation/categoty_data")
 ```
 
 
-### 1.4 네 번째 시도
+### 1.4 네 번째 시도_실패
 * dir 함수로 파일 경로를 읽어서 합치려고 했으나 file_list가 읽어지지 않음  
 ``` 
 getwd()
@@ -128,9 +127,9 @@ sapply(Files, read.xlsx2(sheetIndex=8))
 ```
 
 
-### 1.5 다섯 번째 시도
+### 1.5 다섯 번째 시도_실패
 * list.files 함수로 `data_files' 파일 뭉치까지 만듦  
-* lapply 함수를 공부한 뒤, 여섯 번째 시도에서 해결함
+* lapply 함수를 공부한 뒤, 여섯 번째 시도에서 해결  
 ```
 install.packages("xlsx")
 library(xlsx)  
@@ -149,16 +148,17 @@ list(data)
 ```
 
 
-### 1.6 여섯 번째 시도_success!
+### 1.6 여섯 번째 시도_성공
 * 데이터 합치기: readxl과 lapply(list + apply: 실행 결과가 list 형태로 출력) 함수 사용  
 * 데이터 추출하기: write_csv 사용  
+
 ```
 # readxl, tidyr 함수 라이브러리
 library(readxl)
 library(tidyr)
 
 # 기본 경로: multiple excel files가 있는 곳으로 지정
-setwd("~/Bigdata/contest/sample/Mcorporation/category_data")
+setwd("~/Bigdata/contest/sample/Mcorporation/category_data") # setwd()하지 않고 list.files(path = "~/) 방법으로 경로 지정해도 됨  
 
 # 'list.files', 'pattern'을 사용해서 폴더 내 '.xlsx' 파일만 불러오기
 file_list <- list.files(pattern = "*.xlsx")
@@ -168,7 +168,7 @@ file_list # 확인해보면 64개 파일이 조회됨
 mcorporation_data <- lapply(file_list, function(i){
   x = read_excel(i, sheet = 1)
   x$file = i
-  x})
+  x}
 
 # 데이터 확인하기
 mcorporation_data[[2]] # 열별 행 값 확인 가능
@@ -179,7 +179,6 @@ mcorporation_data # 확인해보기
 
 ```
 # 데이터 추출하기
-
 library("xlsx")
 
 ## xlsx 파일 추출 방법_1
@@ -196,4 +195,17 @@ csv 파일로 생성하여 문제를 해결함
 
 # csv 파일 추출 방법
 write.csv(mcorporation_data, "mcorporation_data.csv")
+```
+
+### 1.7 추가 정답
+```
+library(readxl)
+library(dplyr)
+
+files <- list.files(pattern = "*.xlsx", full.names = T) # 엑셀 파일 묶기
+products <- sapply(files, read_excel, simplify=FALSE) %>% # sapply&bind_rows 함수로 엑셀 합치기
+  bind_rows(.id = "id")
+glimpse(products) # 확인해보기  
+
+# 위 csv 파일 추출 방법 이용하여 csv 파일 추출하면 됨  
 ```
