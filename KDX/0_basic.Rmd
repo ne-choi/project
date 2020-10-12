@@ -1,5 +1,5 @@
 ---
-title: "KDX_contest"
+title: "0. Basic"
 author: "ne_choi"
 date: '2020 10 8 '
 output:
