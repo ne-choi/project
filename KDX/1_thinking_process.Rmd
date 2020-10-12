@@ -129,6 +129,8 @@ graph_cosmetics
 # 기초 화장품 그래프
 graph_skincare <- ggplot(skincare, aes(x = 구매연월, y = 구매금액)) +
   geom_line()
+  
+graph_skincare
 ```
 
 
