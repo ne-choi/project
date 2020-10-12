@@ -47,7 +47,7 @@ knitr::opts_chunk$set(echo = TRUE)
 
 - 사용할 수 있는 데이터  
 
-화장품 종류 |     MCorporation   | 삼성카드 | 신한카드
+화장품 종류 |     Mcorporation   | 삼성카드 | 신한카드
 ------------|--------------------|----------|---------
 색조 화장품 |      메이크업      |    x     |    x
 기초 화장품 | 스킨케어, 미용가전 |    x     |    x
@@ -68,7 +68,68 @@ knitr::opts_chunk$set(echo = TRUE)
 
 ### 1.4 간단히 검증하기
 우선, 위에서 세운 주제/가설로 연구가 가능한지 검증해보아야 한다.  
-MCorporation에서 사용할 수 있는 색조 / 기초 화장품 데이터를 파악해보자.  
+Mcorporation에서 사용할 수 있는 색조 / 기초 화장품 데이터를 파악해보자.  
 색조 / 기초 화장품 월별 추이 변화를 살펴본 후, 가설을 사용할 수 있는지 확인해보자.  
+
+#### 1. 데이터 전처리
+사용할 데이터: 추후 토의
+
+```
+library(readxl)
+library(dplyr)
+library(tidyr)
+library(reshape2)
+
+# 피벗테이블 만들기_데이터 전처리
+# Mcorporation 64개 데이터 합치기
+files <- list.files(path = "sample/Mcorporation/category_data/", pattern = "*.xlsx", full.names = T)
+
+products <- sapply(files, read_excel, simplify = FALSE) %>% 
+  bind_rows(.id = "id") 
+
+glimpse(products)
+
+# 전체 필터 넣기
+filter_products <- group_by(products, 카테고리명, 구매날짜, 고객성별, 고객나이, 구매금액, 구매수) %>%
+  separate(구매날짜, into = c("구매연월", "삭제(일자"), sep = 6) %>%
+  select(카테고리명, 구매연월, 고객성별, 고객나이, 구매금액, 구매수)
+
+# 성별&나이 결측치 제거하기(전체 제거할지 살릴지 정하기)
+nomiss_products <- filter_products %>%
+  filter(!is.na(고객성별) & !is.na(고객나이))
+```
+
+#### 2. 카테고리별 피벗테이블 생성
+```
+# 1. 색조 화장품 피벗테이블 만들기
+cosmetics <- filter(nomiss_products, 카테고리명 == "메이크업 용품")
+
+pivot_cosmetics <- dcast(cosmetics, 구매연월 ~ 고객성별 + 고객나이, value.var = "구매금액", sum, margins = T)
+
+pivot_cosmetics
+
+# 2. skincare 피벗테이블 만들기
+skincare <- filter(nomiss_products, 카테고리명 == "스킨케어")
+
+pivot_skincare <- dcast(skincare, 구매연월 ~ 고객성별 + 고객나이, value.var = "구매금액", sum, margins = T)
+
+pivot_skincare
+```
+
+#### 3. 카테고리별 시계열 그래프 그리기
+```
+library(ggplot2)
+
+# 색조 화장품 그래프
+graph_cosmetics <- ggplot(cosmetics, aes(x = 구매연월, y = 구매금액)) +
+  geom_line()
+
+graph_cosmetics
+
+# 기초 화장품 그래프
+graph_skincare <- ggplot(skincare, aes(x = 구매연월, y = 구매금액)) +
+  geom_line()
+```
+
 
 ## 2. 임시저장
