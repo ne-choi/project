@@ -110,14 +110,31 @@ skincare <- filter(nomiss_products, 카테고리명 == "스킨케어")
 skincare
 ```
 
-#### 2. 카테고리별 피벗테이블 생성
+#### 2. 구매금액 합계 데이터 생성
 ```
-# 1. 색조 화장품 피벗테이블 만들기
+# 월별 기준 데이터 합계 정리하기 (summarise함수 또는 dcast 함수를 이용)
+# 2-1. summarise 함수 이용
+# 색조 화장품
+summarise_cosmetics <- cosmetics %>%
+  group_by(구매연월, 고객성별, 고객나이) %>%
+  summarise(금액합계 = sum(구매금액))
+
+summarise_cosmetics
+
+# 기초 화장품
+summarise_skincare <- skincare %>%
+  group_by(구매연월, 고객성별, 고객나이) %>%
+  summarise(금액합계 = sum(구매금액))
+
+summarise_skincare
+
+# 2-2. dcast 함수 이용
+# 색조 화장품
 pivot_cosmetics <- dcast(cosmetics, 구매연월 ~ 고객성별 + 고객나이, value.var = "구매금액", sum)
 
 pivot_cosmetics
 
-# 2. skincare 피벗테이블 만들기
+# 기초 화장품
 pivot_skincare <- dcast(skincare, 구매연월 ~ 고객성별 + 고객나이, value.var = "구매금액", sum, margins = T)
 
 pivot_skincare
