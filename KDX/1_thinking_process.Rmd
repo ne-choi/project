@@ -141,21 +141,36 @@ pivot_skincare
 ```
 
 
-#### 3. 카테고리별 시계열 그래프 그리기 (수정 필요)
+#### 3. 카테고리별 시계열 그래프 그리기
 ```
+3) 시각화하기
+# '단위: 억' 적용
+label_ko_num = function(num){
+  ko_num = function(x){
+    new_num = x %/% 100000000
+    return(paste(new_num, '억', sep = ''))
+  }
+  return(sapply(num, ko_num))
+}
+
+#색조 화장품
 library(ggplot2)
 
-# 색조 화장품 그래프
-graph_cosmetics <- ggplot(cosmetics, aes(x = 구매연월, y = 구매금액)) +
-  geom_line()
+graph_cosmetics <- ggplot(summarise_cosmetics, aes(x = 구매연월, y = 금액합계, color = 고객성별)) +
+  geom_point() +
+  scale_y_continuous(labels = label_ko_num) +
+theme(axis.text.x = element_text(angle = 45, hjust = 1)) 
 
 graph_cosmetics
 
-# 기초 화장품 그래프
-graph_skincare <- ggplot(skincare, aes(x = 구매연월, y = 구매금액)) +
-  geom_line()
-  
+#기초 화장품
+graph_skincare <- ggplot(summarise_skincare, aes(x = 구매연월, y = 금액합계, color = 고객성별)) +
+  geom_point() +
+  scale_y_continuous(labels = label_ko_num) +
+theme(axis.text.x = element_text(angle = 45, hjust = 1))
+
 graph_skincare
+
 ```
 
 
