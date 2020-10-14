@@ -76,7 +76,8 @@ library(ggplot2)
 graph_cosmetics <- ggplot(summarise_cosmetics, aes(x = 구매연월, y = 금액합계, color = 고객성별)) +
   geom_point() +
   scale_y_continuous(labels = label_ko_num) +
-theme(axis.text.x = element_text(angle = 45, hjust = 1)) 
+theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
+  theme(legend.position = "bottom")
 
 graph_cosmetics
 
@@ -84,6 +85,7 @@ graph_cosmetics
 graph_skincare <- ggplot(summarise_skincare, aes(x = 구매연월, y = 금액합계, color = 고객성별)) +
   geom_point() +
   scale_y_continuous(labels = label_ko_num) +
-theme(axis.text.x = element_text(angle = 45, hjust = 1))
+theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
+theme(legend.position = "bottom")
 
 graph_skincare
