@@ -1,150 +1,59 @@
 ---
-title: "1. thinking_process"
+title: "1_thinking_process"
 author: "ne_choi"
-date: '2020 10 12 '
-output:
-  html_document:
-   toc: true
-   toc_float:
-     collapsed: false
-     smooth_scroll: true
-   theme: united
-   highlight: textmate
+date: '2020 10 15 '
+output: html_document
 ---
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
-# KDX contest
-- 팀명: R러뷰
+# 제목
 
-## 1. 주제 잡기
-- KDX contest 제공 데이터
-  - MBN 뉴스데이터 / - M Corporation 온라인 구매 데이터  
-  - 삼성카드 오프라인 구매 데이터 / - 신한카드 오프라인 구매 데이터  
-  - 지인플러스 전국 아파트 시세 및 거래량 데이터 / - KDX 무료 데이터  
-
-=> KDX contest에서 주어진 데이터 중, <소비 데이터> 중심으로 분석하기로 함  
-  
-
-### 1.1 주제 찾기  
-주어진 데이터로 추출할 수 있는 분야를 찾고 흥미로운 주제 하나 선택하기  
-```
-- 데이터 시기: 2019.01 - 2020.06
-- 코로나 전후 소비 데이터를 살펴보기 좋음
-```
-
-- 홈 쿠킹 재료
-- 반려동물
-- 기초 화장품
-- 캠핑 용품, 차박
-- 자전거 구매량
-
-
-### 1.2 주제 선정하기 
-**코로나19와 기초 화장품 매출의 상관 관계**
-
-- 사용할 수 있는 데이터  
-
-화장품 종류 |     Mcorporation   | 삼성카드 | 신한카드
-------------|--------------------|----------|---------
-색조 화장품 |      메이크업      |    x     |    x
-기초 화장품 | 스킨케어, 미용가전 |    x     |    x
-
-
-### 1.3 가설 세우기 
-"코로나19로 인해 색조 화장품 구매가 줄고, 기초 화장품 구매가 늘었을까?"  
-
-- root  
-  - 색조 화장품 vs 기초 화장품(M Corporation, 신한카드, 삼성카드 데이터 이용)
-  - 마스크를 쓰기 때문에 베이스, 립 등 색조 화장품 구매가 줄었을 것이다
-
-- branch
-  - 색조 화장품 대신 기초 화장품, 피부 미용 기기 소비가 늘었을 것이다
-  - 기초 화장품과 함께 네일아트 등 다른 미용 분야 소비가 늘었을 것이다
-  - 색조 화장품 중에서도 베이스와 립은 줄고, 아이메이크업은 늘었을 것이다  
-  
-
-### 1.4 간단히 검증하기
-우선, 위에서 세운 주제/가설로 연구가 가능한지 검증해보아야 한다.  
-Mcorporation에서 사용할 수 있는 색조 / 기초 화장품 데이터를 파악해보자.  
-색조 / 기초 화장품 월별 추이 변화를 살펴본 후, 가설을 사용할 수 있는지 확인해보자.  
-
-#### 1. 데이터 전처리
-사용할 데이터: 추후 토의
-
-```
 library(readxl)
 library(dplyr)
 library(tidyr)
 library(reshape2)
+library(ggplot2)
 
-# 피벗테이블 만들기_데이터 전처리
-# Mcorporation 64개 데이터 합치기
-files <- list.files(path = "sample/Mcorporation/category_data/", pattern = "*.xlsx", full.names = T)
+## 1. 데이터 전처리
+### 1. Mcorporation
+
+- 사용할 데이터 합치기
+```{r}
+files <- list.files(path = "sample/Mcorporation/상품 카테고리 데이터_KDX 시각화 경진대회 Only//use", pattern = "*.xlsx", full.names = T)
 
 products <- sapply(files, read_excel, simplify = FALSE) %>% 
   bind_rows(.id = "id") 
 
 glimpse(products)
+```
 
-# 전체 필터 넣기
-filter_products <- group_by(products, 카테고리명, 구매날짜, 고객성별, 고객나이, 구매금액, 구매수) %>%
-  separate(구매날짜, into = c("구매연월", "삭제(일자"), sep = 6) %>%
-  select(카테고리명, 구매연월, 고객성별, 고객나이, 구매금액, 구매수)
-
-# 성별&나이 결측치 제거하기(성별 F, M, 나이 0 이상만 추출)
-nomiss_products <- filter_products %>%
+- 결측치 제거하기(성별, 나이)
+```{r}
+nomiss_products <- products %>%
   filter(!is.na(고객성별) & !is.na(고객나이)) %>%
-  filter((고객성별 %in% c("F", "M")), 고객나이 > 0)
+  filter((고객성별 %in% c("F", "M")), 고객나이 > 0) %>%
+  select(카테고리명, 구매날짜, 고객성별, 고객나이, OS유형, 구매금액, 구매수)
 
-# 1. 색조 화장품 데이터 정리하기
-cosmetics <- filter(nomiss_products, 카테고리명 == "메이크업 용품")
-
-cosmetics
-
-# 2. 기초 화장품 데이터 정리하기
-skincare <- filter(nomiss_products, 카테고리명 == "스킨케어")
-
-skincare
+head(nomiss_products)
 ```
 
-#### 2. 구매금액 합계 데이터 생성
-```
-# 월별 기준 데이터 합계 정리하기 (summarise함수 또는 dcast 함수를 이용)
-# 2-1. summarise 함수 이용
-# 색조 화장품
-summarise_cosmetics <- cosmetics %>%
-  group_by(구매연월, 고객성별, 고객나이) %>%
+- 비교값 만들기
+```{r}
+compare_products <- nomiss_products %>%
+  group_by(카테고리명, 구매날짜, 고객성별) %>%
   summarise(금액합계 = sum(구매금액))
 
-summarise_cosmetics
-
-# 기초 화장품
-summarise_skincare <- skincare %>%
-  group_by(구매연월, 고객성별, 고객나이) %>%
-  summarise(금액합계 = sum(구매금액))
-
-summarise_skincare
-
-# 2-2. dcast 함수 이용
-# 색조 화장품
-pivot_cosmetics <- dcast(cosmetics, 구매연월 ~ 고객성별 + 고객나이, value.var = "구매금액", sum)
-
-pivot_cosmetics
-
-# 기초 화장품
-pivot_skincare <- dcast(skincare, 구매연월 ~ 고객성별 + 고객나이, value.var = "구매금액", sum, margins = T)
-
-pivot_skincare
+head(compare_products)
+tail(compare_products)
 ```
 
 
-#### 3. 카테고리별 시계열 그래프 그리기
-```
-3) 시각화하기
-# '단위: 억' 적용
+- 그래프 그리기
+  - '단위: 억' 적용
+```{r}
 label_ko_num = function(num){
   ko_num = function(x){
     new_num = x %/% 100000000
@@ -152,26 +61,27 @@ label_ko_num = function(num){
   }
   return(sapply(num, ko_num))
 }
-
-#색조 화장품
-library(ggplot2)
-
-graph_cosmetics <- ggplot(summarise_cosmetics, aes(x = 구매연월, y = 금액합계, color = 고객성별)) +
-  geom_point() +
-  scale_y_continuous(labels = label_ko_num) +
-theme(axis.text.x = element_text(angle = 45, hjust = 1)) 
-
-graph_cosmetics
-
-#기초 화장품
-graph_skincare <- ggplot(summarise_skincare, aes(x = 구매연월, y = 금액합계, color = 고객성별)) +
-  geom_point() +
-  scale_y_continuous(labels = label_ko_num) +
-theme(axis.text.x = element_text(angle = 45, hjust = 1))
-
-graph_skincare
-
 ```
 
+  - 시각화 전처리(문자형을 날짜형으로 변환)
+install.packages("as.POSIXct")
+```{r}
+library(lubridate)
 
-## 2. 임시저장
+final_products <- compare_products %>%
+  mutate(구매일 = ymd(구매날짜))
+
+final_products
+```
+
+  - 시각화
+```{r}
+graph_products <- ggplot(final_products, aes(x = 구매일, y = 금액합계, color = 카테고리명)) +
+  geom_line() +
+  scale_y_continuous(labels = label_ko_num) +
+theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
+  theme(legend.position = "bottom") +
+  facet_wrap(~ 고객성별, ncol = 2)
+
+graph_products
+```
