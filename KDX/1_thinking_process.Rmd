@@ -9,8 +9,9 @@ output: html_document
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
-# 1. 색조 화장품 vs 기초 화장품
-```{r message = FALSE} 
+# 제목
+
+```{r}
 library(readxl)
 library(dplyr)
 library(tidyr)
@@ -23,7 +24,7 @@ library(ggplot2)
 
 - 사용할 데이터 합치기
 ```{r}
-files <- list.files(path = "source", pattern = "*.xlsx", full.names = T)
+files <- list.files(path = "sample/Mcorporation/상품 카테고리 데이터_KDX 시각화 경진대회 Only//use", pattern = "*.xlsx", full.names = T)
 
 products <- sapply(files, read_excel, simplify = FALSE) %>% 
   bind_rows(.id = "id") 
@@ -75,22 +76,10 @@ final_products <- compare_products %>%
 final_products
 ```
 
-  - 시각화_1
+  - 시각화
 ```{r}
 graph_products <- ggplot(final_products, aes(x = 구매일, y = 금액합계, color = 카테고리명)) +
-  geom_line() +
-  scale_y_continuous(labels = label_ko_num) +
-theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
-  theme(legend.position = "bottom") +
-  facet_wrap(~ 고객성별, ncol = 2)
-
-graph_products
-```
-
-- 시각화_2
-```{r}
-graph_products <- ggplot(final_products, aes(x = 구매일, y = 금액합계, color = 카테고리명)) +
-  geom_smooth() +
+  geom_smooth() + geom_point(size = 0.1) +
   scale_y_continuous(labels = label_ko_num) +
 theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
   theme(legend.position = "bottom") +
