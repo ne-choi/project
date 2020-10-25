@@ -19,11 +19,17 @@ KDX가 제공하는 다양한 소비 데이터(온라인 쇼핑, 오프라인 �
 분석 결과는 참신한 아이디어와 창의력을 이용해 시각화 해주세요.  
 공공과 민간을 가리지 않고 많은 분야에 활용될 수 있는 결과가 나온다면 더욱 환영입니다.  
 
-
+- **평가 기준**  
+  인사이트 점수: 인사이트 도출 / 논리 명확성 / 주제 선정과 분석 창의성  
+  기술 점수: 분석 기술 수준  
+  실용 점수: 대시보드 시장성과 품질  
 ---
 
-0. Subject  
-have to discuss with team members...  
+**0. Subject  **
+"코로나19 발생 이후 색조 및 기초 화장품 수요 비교분석"  
+코로나19로 인한 마스크 일상화/의무화 시대, 화장품 업계 매출 추이를 살펴보고 발전 방향 제언하기 
 
-1. Merge MCorporation data
-merge multiple excel(.xlsx) files into one file
+**1. Data**
+- Mcorporation online purchase data    
+- Shinhancard offline purchase data  
+- Naver keyword serch data
