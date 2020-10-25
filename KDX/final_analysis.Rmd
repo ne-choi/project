@@ -1,0 +1,496 @@
+---
+title: "코로나19 발생 이후  색조 및 기초 화장품 수요 비교분석"
+author: Team R러뷰 (최나은, 박신형, 강다영)
+output:   
+  html_document:
+   toc: true
+   toc_float:
+     collapsed: true
+     smooth_scroll: true
+   theme: united
+   highlight: textmate
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE,
+                      warning = FALSE, message = FALSE)
+```
+
+# KDX_Contest_2020_final_analysis
+ + 제공된 분석 환경 내 윈도우 폰트 설치 시, 오류 발생하여 출력 화면에서 한글 깨짐 현상 나타납니다. 
+
+## 1. 준비 작업
+### 1.1 패키지 설치 및 불러오기
+```r
+# 패키지 설치하기
+install.packages("readxl")
+install.packages("dplyr")
+install.packages("tidyr")
+install.packages("reshape2")
+install.packages("ggplot2")
+install.packages("lubridate")
+install.packages("labeling")
+install.packages("extrafont")
+install.packages('devtools')
+devtools::install_github('bbc/bbplot')
+```
+
+```{r}
+# 패키지 불러오기
+library(readxl)
+library(dplyr)
+library(tidyr)
+library(reshape2)
+library(ggplot2)
+library(lubridate)
+library(labeling)
+library(extrafont)
+```
+  
+```{r}
+# 시각화 테마를 위한 bbplot 패키지 설치 
+if(!require(pacman))install.packages("pacman")
+
+pacman::p_load('dplyr', 'tidyr', 'gapminder',
+               'ggplot2',  'ggalt',
+               'forcats', 'R.utils', 'png', 
+               'grid', 'ggpubr', 'scales',
+               'bbplot')
+
+```
+
+
+## 2. Mcorpotarion Data
+### 2.1 기초 & 색조 화장품 엑셀 정리 
+```{r}
+# 사용할 데이터만 정리하기(메이크업, 스킨케어)
+files <- list.files(path = "use_data", pattern = "*.xlsx", full.names = T)  
+products <- sapply(files, read_excel, simplify = FALSE) %>% 
+  bind_rows(.id = "id")
+
+glimpse(products)
+```
+
+### 2.2 월별 추이 확인을 위한 전처리 및 시각화
+```{r}
+# 전체 필터 넣기
+filter_products <- group_by(products, 카테고리명, 구매날짜, 고객성별, 고객나이, 구매금액, 구매수) %>%
+  separate(구매날짜, into = c("구매연월", "삭제(일자)"), sep = 6) %>%
+  select(카테고리명, 구매연월, 고객성별, 고객나이, 구매금액, 구매수)
+
+head(filter_products, 2)
+```
+
+
+```{r}
+# 성별&나이 결측치 제거하기(성별 F, M, 나이 0 이상만 추출)
+nomiss_products <- filter_products %>%
+  filter(!is.na(고객성별) & !is.na(고객나이)) %>%
+  filter((고객성별 %in% c("F", "M")), 고객나이 > 0)
+
+head(nomiss_products)
+```
+
+```{r}
+# "메이크업 용품" 카테고리 추출
+cosmetics <- filter(nomiss_products, 카테고리명 == "메이크업 용품")
+
+cosmetics
+```
+
+```{r}
+# 월별 데이터 합계_메이크업 용품
+summarise_cosmetics <- cosmetics %>%
+  group_by(구매연월, 고객성별) %>%
+  summarise(금액합계 = sum(구매금액))
+
+summarise_cosmetics
+```
+
+
+```{r}
+# "스킨 케어" 카테코리 추출
+skincare <- filter(nomiss_products, 카테고리명 == "스킨케어")
+
+skincare
+```
+
+```{r}
+# 월별 데이터 합계_스킨케어
+summarise_skincare <- skincare %>%
+  group_by(구매연월, 고객성별) %>%
+  summarise(금액합계 = sum(구매금액))
+
+summarise_skincare
+```
+```{r}
+# 시각화하기
+## '단위: 억' 적용
+label_ko_num = function(num){
+  ko_num = function(x){
+    new_num = x %/% 100000000
+    return(paste(new_num, '억', sep = ''))
+  }
+  return(sapply(num, ko_num))
+}
+```
+
+```{r}
+#색조 화장품(메이크업 용품)_월별 추이_ppt.12p
+library(ggplot2)
+
+graph_cosmetics <- ggplot(summarise_cosmetics, aes(x = 구매연월, y = 금액합계, color = 고객성별)) +
+  geom_point(size = 2) +
+  scale_y_continuous(labels = label_ko_num) +
+theme(
+      axis.text.x = element_text(size = 8,family= "NanumSquare_ac", hjust = 1, angle = 45),
+    axis.text.y = element_text(size = 8,family = "NanumSquare_ac"),
+    legend.position = "bottom",
+    axis.title.x = element_text(size = 12, family = "NanumSquare_ac"),
+    axis.title.y = element_text(size = 12, family = "NanumSquare_ac")) +
+  geom_hline(yintercept = 0, size = 1, colour="#999999") +
+  scale_colour_manual(values = c("#EB3232", "#FAAB18")) +
+  bbc_style()
+
+graph_cosmetics
+```
+```{r}
+# 기초 화장품(스킨케어)_월별 추이_ppt.12p
+graph_skincare <- ggplot(summarise_skincare, aes(x = 구매연월, y = 금액합계, color = 고객성별)) +
+  geom_point(size = 2) +
+  scale_y_continuous(labels = label_ko_num) +
+  theme(
+    axis.text.x = element_text(size = 8,family= "NanumSquare_ac",hjust = 1, angle = 45),
+    axis.text.y = element_text(size = 8,family = "NanumSquare_ac"),
+    legend.position = "bottom",
+    axis.title.x = element_text(size = 12, family = "NanumSquare_ac"),
+    axis.title.y = element_text(size = 12, family = "NanumSquare_ac")) +
+  geom_hline(yintercept = 0, size = 1, colour="#999999") +
+  scale_colour_manual(values = c("#EB3232", "#FAAB18")) +
+  bbc_style()
+
+graph_skincare
+```
+
+### 2.3 실제 분석을 위한 데이터 전처리 및 시각화
+
+```{r}
+# 성별&나이 결측치 제거하기(성별 F, M, 나이 0 이상만 추출)
+nomiss_products <- products %>%
+  filter(!is.na(고객성별) & !is.na(고객나이)) %>%
+  filter((고객성별 %in% c("F", "M")), 고객나이 > 0) %>%
+  select(카테고리명, 구매날짜, 고객성별, 고객나이, OS유형, 구매금액, 구매수)
+```
+
+```{r}
+# 비교값 만들기
+compare_products <- nomiss_products %>%
+  group_by(카테고리명, 구매날짜, 고객성별) %>%
+  summarise(금액합계 = sum(구매금액))
+
+head(compare_products)
+```
+
+```{r}
+# 억 원 단위 생성
+label_ko_num = function(num){
+  ko_num = function(x){
+    new_num = x %/% 100000000
+    return(paste(new_num, '억', sep = ''))
+   }
+    return(sapply(num, ko_num))
+   }
+```
+
+```{r}
+# 문자형 데이터 -> 날짜 데이터로 전환
+library(lubridate)
+
+final_products <- compare_products %>%
+  mutate(구매일 = ymd(구매날짜))
+```
+
+* 시각화
+```{r}
+# 색조화장품(메이크업 용품) 데이터 시각화 _ppt.14p
+
+final_products
+
+cosmetics <- final_products %>%
+  filter(카테고리명 == "메이크업 용품")
+
+font_import(pattern = "NanumSquare")
+
+# loadfonts(device = "win")
+
+theme_update(text = element_text(family = "NanumSquare_ac Bold"))
+
+graph_cosmetics <- ggplot(cosmetics, aes(x = 구매일, y = 금액합계, color = 고객성별)) +
+  geom_smooth() + geom_point(size = 0.1) +
+  scale_y_continuous(labels = label_ko_num, breaks = seq(0, 2000000000, by = 250000000)) +
+  scale_x_date(date_breaks="3 month", minor_breaks=NULL, date_labels = "%Y.%m") +
+  theme(
+    axis.text.x = element_text(size = 8,family= "NanumSquare_ac", hjust = 1),
+    axis.text.y = element_text(size = 8,family = "NanumSquare_ac"),
+    axis.title.x = element_text(size = 12, family = "NanumSquare_ac"),
+    axis.title.y = element_text(size = 12, family = "NanumSquare_ac"),
+  ) +
+  geom_hline(yintercept = 0, size = 1, colour="#999999") +
+  scale_colour_manual(values = c("#EB3232", "#FAAB18")) +
+  bbc_style()
+
+graph_cosmetics
+```
+
+```{r}
+# 기초화장품(스킨케어) 데이터 시각화_ppt.14p
+skincare <- final_products %>%
+  filter(카테고리명 == "스킨케어")
+
+font_import(pattern = "NanumSquare")
+
+# loadfonts(device = "win")
+
+theme_update(text = element_text(family = "NanumSquare_ac Bold"))
+
+graph_skincare <- ggplot(skincare, aes(x = 구매일, y = 금액합계, color = 고객성별)) +
+  geom_smooth() + geom_point(size = 0.1) +
+  scale_y_continuous(labels = label_ko_num, breaks = seq(0, 600000000, by = 100000000)) +
+  scale_x_date(date_breaks="3 month", minor_breaks=NULL, date_labels = "%Y.%m") +
+  theme(
+    axis.text.x = element_text(size = 8,family= "NanumSquare_ac", hjust = 1),
+    axis.text.y = element_text(size = 8,family = "NanumSquare_ac"),
+    axis.title.x = element_text(size = 12, family = "NanumSquare_ac"),
+    axis.title.y = element_text(size = 12, family = "NanumSquare_ac"),
+  ) +
+  geom_hline(yintercept = 0, size = 1, colour="#999999") +
+  scale_colour_manual(values = c("#EB3232", "#FAAB18")) +
+  bbc_style()
+
+graph_skincare
+```
+
+## 3. Shinhancard Data
+### 3.1 신한카드 '화장품' 카테고리 데이터 전처리
+
+```{r}
+# 신한카드 오프라인 구매 데이터 불러오기 
+shinhancard <- read_xlsx("sample/Shinhancard.xlsx")
+```
+
+```{r}
+# 신한카드 오프라인 구매 데이터 결측치 제거
+shinhancard <- shinhancard %>%
+  select(-c(6:8))
+
+head(shinhancard)
+```
+
+```{r}
+# 신한카드 데이터 필터링
+filter_sh_beauty <- shinhancard %>%
+  select(업종, 일별, 성별, 연령대별, '카드이용건수(천건)') %>%
+  filter(업종 == "M018_화장품")
+
+head(filter_sh_beauty)
+```
+
+```{r}
+# 신한카드 성별&나이 결측치 제거하기(성별 F, M, 나이 0 이상만 추출)
+nomiss_sh_beauty <- filter_sh_beauty %>%
+  filter(!is.na(성별) & !is.na(연령대별)) %>%
+  filter((성별 %in% c("F", "M")), 연령대별 > 0)
+
+nomiss_sh_beauty
+```
+
+```{r}
+# 신한카드 '화장품' 카테고리 구매수 합계
+sum_sh_beauty <- nomiss_sh_beauty %>%
+  group_by(일별, 성별) %>%
+  summarise('구매횟수' = sum(`카드이용건수(천건)`))
+
+sum_sh_beauty
+```
+
+```{r}
+# 신한카드 데이터 시계열 데이터로 변환
+final_sh_beauty <- sum_sh_beauty %>%
+  mutate(구매일자 = ymd(일별))
+
+final_sh_beauty
+```
+
+### 3.2 신한카드 데이터 시각화 
+
+```{r}
+# 신한카드 '화장품' 카테고리 데이터 시각화_ppt.13p
+graph_sh_beauty <- ggplot(final_sh_beauty, aes(x = 구매일자, y = 구매횟수, color = 성별)) +
+  geom_smooth() + geom_point(size = 0.1) +
+  scale_x_date(date_breaks="3 month", minor_breaks=NULL, date_labels = "%Y.%m") +
+  scale_y_continuous(breaks = seq(0, 200, by = 20)) +
+  theme(
+    axis.text.x = element_text(size = 8,family= "NanumSquare_ac", hjust = 1),
+    axis.text.y = element_text(size = 8,family = "NanumSquare_ac"),
+    axis.title.x = element_text(size = 12, family = "NanumSquare_ac"),
+    axis.title.y = element_text(size = 12, family = "NanumSquare_ac"),
+  ) +
+  geom_hline(yintercept = 0, size = 1, colour="#999999") +
+  scale_colour_manual(values = c("#EB3232", "#FAAB18")) +
+  bbc_style()
+   
+graph_sh_beauty
+```
+
+## 4. Naver Keyword Data
+### 4.1 마스크 키워드 검색량 데이터 
+```{r}
+# 마스크 키워드 검색량 데이터 불러오기
+mask <- read_excel("mask_keywords_data.xlsx")
+```
+
+```{r}
+# 문자형 데이터를 숫자형으로 변환
+
+mask$마스크검색량 <- as.numeric(mask$마스크검색량)
+```
+
+
+```{r}
+# 문자형 데이터를 날짜형으로 변환
+final_mask <- mask %>%
+  mutate(검색일자 = ymd(구매날짜))
+
+final_mask
+```
+
+```{r}
+# 마스크 키워드 검색량 데이터 시각화_ppt.15p
+graph_mask <- ggplot(final_mask, aes(x = 검색일자, y = 마스크검색량)) +
+  geom_smooth(color = "#EB3232") +
+  scale_y_continuous(breaks = seq(0, 100, by = 10)) +
+  scale_x_date(date_breaks="3 month", minor_breaks=NULL, date_labels = "%Y.%m") +
+  theme(
+    axis.text.x = element_text(size = 8,family= "NanumSquare_ac",  hjust = 1),
+    axis.text.y = element_text(size = 8,family = "NanumSquare_ac"),
+    axis.title.x = element_text(size = 12, family = "NanumSquare_ac"),
+    axis.title.y = element_text(size = 12, family = "NanumSquare_ac")) +
+  bbc_style()
+  
+graph_mask
+```
+                                                              
+                                                              
+### 4.2 (색조 & 기초) 화장품 키워드 검색량 데이터 
+```{r}
+# (색조 & 기초) 화장품 키워드 검색량 데이터 불러오기
+makeup <- read_excel("색조 vs 기초 화장품 키워드 검색량.xlsx")
+```
+
+```{r}
+# 문자형 데이터를 숫자형으로 변환
+makeup$색조화장품 <- as.numeric(makeup$색조화장품)
+makeup$기초화장품 <- as.numeric(makeup$기초화장품)
+```
+
+```{r}
+# 문자형 데이터를 날짜형으로 변환
+trans_makeup <- makeup %>%
+  mutate(검색일자 = ymd(날짜))
+
+trans_makeup
+```
+
+
+```{r}
+# 색조 & 기초 메이크업 화장품 키워드 검색량 데이터 시각화_ppt.16p
+
+graph_makeup <- ggplot(trans_makeup, aes(x = 검색일자, y = `색조 & 기초 화장품 검색량`)) +
+  geom_line(aes(y = `색조화장품`), color = "#EB3232") + 
+  geom_line(aes(y = `기초화장품`), color = "#FAAB18") +
+  scale_y_continuous(breaks = seq(0, 100, by = 10)) +
+  scale_x_date(date_breaks="3 month", minor_breaks = NULL, date_labels = "%Y.%m") +
+  theme(
+    axis.text.x = element_text(size = 8,family= "NanumSquare_ac", hjust = 1),
+    axis.text.y = element_text(size = 8,family = "NanumSquare_ac"),
+    axis.title.x = element_text(size = 12, family = "NanumSquare_ac"),
+    axis.title.y = element_text(size = 12, family = "NanumSquare_ac")) +
+  geom_hline(yintercept = 0, size = 1, colour="#999999") +
+  bbc_style()
+
+graph_makeup
+```
+
+### 4.3 (립 & 아이) 화장품 키워드 검색량 데이터 
+```{r}
+# (립 & 아이) 화장품 키워드 검색량 데이터 불러오기
+lipeye <- read_excel("메이크업 제품 비교(아이, 립).xlsx")
+```
+
+
+```{r}
+# 문자형 데이터를 날짜형으로 변환
+trans_lipeye <- lipeye %>%
+  mutate(검색일자 = ymd(날짜))
+
+trans_lipeye
+```
+
+
+```{r}
+# 립 & 아이 메이크업 화장품 키워드 검색량 데이터 시각화_ppt.15p
+
+graph_lipeye <- ggplot(trans_lipeye, aes(x = 검색일자, y = `립 & 아이 메이크업 검색량`)) +
+  geom_line(aes(y = `립 메이크업`), color = "#EB3232") + 
+  geom_line(aes(y = `아이 메이크업`), color = "#FAAB18") +
+  scale_y_continuous(breaks = seq(0, 100, by = 10)) +
+  scale_x_date(date_breaks="3 month", minor_breaks=NULL, date_labels = "%Y.%m") +
+  theme(
+    axis.text.x = element_text(size = 8,family= "NanumSquare_ac", hjust = 1),
+    axis.text.y = element_text(size = 8,family = "NanumSquare_ac"),
+    axis.title.x = element_text(size = 12, family = "NanumSquare_ac"),
+    axis.title.y = element_text(size = 12, family = "NanumSquare_ac")) +
+  geom_hline(yintercept = 0, size = 1, colour="#999999") +
+  bbc_style()
+
+graph_lipeye
+```
+
+### 4.4 (마스크프루프) 화장품 키워드 검색량 데이터 
+```{r}
+# (마스크프루프) 화장품 키워드 검색량 데이터 불러오기
+maskproof <- read_excel("마스크프루프 키워드 데이터.xlsx")
+```
+
+```{r}
+# 문자형 데이터를 숫자형으로 변환
+maskproof$마스크프루프 <- as.numeric(maskproof$마스크프루프)
+```
+
+
+```{r}
+# 문자형 데이터를 날짜형으로 변환
+trans_maskproof <- maskproof %>%
+  mutate(검색일자 = ymd(날짜))
+
+trans_maskproof
+```
+
+```{r}
+# 마스크프루프 화장품 키워드 검색량 데이터 시각화
+
+graph_maskproof <- ggplot(trans_maskproof, aes(x = 검색일자, y = `마스크프루프 제품 검색량`)) +
+  geom_line(aes(y = `마스크프루프`), color = "#EB3232") +
+  scale_y_continuous(breaks = seq(0, 100, by = 10)) +
+  scale_x_date(date_breaks="3 month", minor_breaks=NULL, date_labels = "%Y.%m") +
+  theme(
+    axis.text.x = element_text(size = 8,family= "NanumSquare_ac", hjust = 1),
+    axis.text.y = element_text(size = 8,family = "NanumSquare_ac"),
+    axis.title.x = element_text(size = 12, family = "NanumSquare_ac"),
+    axis.title.y = element_text(size = 12, family = "NanumSquare_ac")) +
+  bbc_style()
+  
+graph_maskproof
+```
+
+
