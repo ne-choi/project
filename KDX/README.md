@@ -19,9 +19,11 @@
 + 공공과 민간을 가리지 않고 많은 분야에 활용될 수 있는 결과가 나온다면 더욱 환영입니다.  
 
 ### 3. 평가 기준  
-+ 인사이트 점수: 인사이트 도출 / 논리 명확성 / 주제 선정과 분석 창의성  
-+ 기술 점수: 분석 기술 수준  
-+ 실용 점수: 대시보드 시장성과 품질  
+|   기준  항목  |                         내용                         |  
+|---|---|  
+| 인사이트 점수 | 인사이트 도출, 논리 명확성, 주제 선정과 분석 창의성  |  
+|   기술 점수   | 분석 기술 수준                                       |  
+|   실용 점수   | 대시보드 시장성과 품질                               |  
 
 ### 4. 규칙
 + 내부 분석환경에서 코드 저장 후 제출 페이지에서 제출  
@@ -47,7 +49,7 @@
   - "코로나19 발생 이후 색조 및 기초 화장품 수요 비교분석"  
   - 코로나19로 인한 마스크 일상화/의무화 시대, 화장품 업계 매출 추이를 살펴보고 발전 방향 제언하기 
 
-+ 2. Data
++ 2. Used Data
   - Mcorporation online purchase data    
   - Shinhancard offline purchase data  
   - Naver keyword serch data
@@ -163,7 +165,7 @@ theme(
 
 graph_cosmetics
 ```
-![](img/graph_m_cos.png){width="600"}  
+![](img/graph_m_cos.png)  
 
 ```{r}
 # 기초 화장품(스킨케어)_월별 추이_ppt.12p
@@ -182,7 +184,7 @@ graph_skincare <- ggplot(summarise_skincare, aes(x = 구매연월, y = 금액합
 
 graph_skincare
 ```
-![](img/graph_m_skin.png){width="600"}  
+![](img/graph_m_skin.png)  
 
 ```{r}
 # 성별&나이 결측치 제거하기(성별 F, M, 나이 0 이상만 추출)
@@ -237,7 +239,7 @@ graph_cosmetics <- ggplot(cosmetics, aes(x = 구매일, y = 금액합계, color 
 
 graph_cosmetics
 ```
-![](img/graph_cos.png){width="600"}  
+![](img/graph_cos.png)  
 
 ```{r}
 # 기초화장품(스킨케어) 데이터 시각화_ppt.14p
@@ -266,7 +268,7 @@ graph_skincare <- ggplot(skincare, aes(x = 구매일, y = 금액합계, color = 
 
 graph_skincare
 ```
-![](img/graph_skin.png){width="600"}  
+![](img/graph_skin.png)  
 
 
 ### 4. Shinhancard
@@ -339,7 +341,7 @@ graph_sh_beauty <- ggplot(final_sh_beauty, aes(x = 구매일자, y = 구매횟�
    
 graph_sh_beauty
 ```
-![](img/graph_shinhan.png){width="600"}  
+![](img/graph_shinhan.png)  
 
 
 ### 5. 네이버 키워드 검색 데이터
@@ -379,7 +381,7 @@ graph_mask <- ggplot(final_mask, aes(x = 검색일자, y = 마스크검색량)) 
   
 graph_mask
 ```
-![](img/graph_mask.png){width="600"}  
+![](img/graph_mask.png)  
 
 #### 5.2 기초 vs 색조 화장품   
 
@@ -417,7 +419,7 @@ graph_makeup <- ggplot(trans_makeup, aes(x = 검색일자, y = `색조 & 기초 
 
 graph_makeup
 ```
-![](img/graph_cosskin.png){width="600"}  
+![](img/graph_cosskin.png)  
 
 #### 5.3 색조 중, 립 vs 아이 메이크업 키워드 데이터   
 
@@ -452,7 +454,7 @@ graph_lipeye <- ggplot(trans_lipeye, aes(x = 검색일자, y = `립 & 아이 메
 
 graph_lipeye
 ```
-![](img/graph_lipeye.png){width="600"}  
+![](img/graph_lipeye.png)  
 
 #### 5.4 마스크프루프  
 
@@ -487,4 +489,4 @@ graph_maskproof <- ggplot(trans_maskproof, aes(x = 검색일자, y = `마스크�
   
 graph_maskproof
 ```
-![](img/graph_maskproof.png){width="600"}
+![](img/graph_maskproof.png)
