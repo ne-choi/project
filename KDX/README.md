@@ -1,8 +1,8 @@
-# KDX_소비트렌드 코리아 2020  
+# KDX 소비트렌드 코리아2020  
 
 ![](img/kdx_event1.png)  
 
-+ KDX 유통·소비데이터 분석 & 시각화 경진대회  
++ KDX 유통·소비 데이터 분석 & 시각화 경진대회  
   - 일정: 2020.09.23 - 2020.10.25  
   - 주최 및 주관: MBN, KDX한국데이터거래소  
   - 후원: NIA 한국정보화진흥원  
@@ -10,8 +10,8 @@
 
 ## 개요
 ### 1. 과제  
-+ KDX의 다양한 데이터와 외부 데이터를 활용해 한국의 소비 트렌드를 분석해  
-인사이트를 도출하고 이를 보기 좋게 시각화 해주세요.
++ KDX의 다양한 데이터와 외부 데이터를 활용해  
+한국의 소비 트렌드를 분석해 인사이트를 도출하고 이를 보기 좋게 시각화 해주세요.
 
 ### 2. 상세 설명  
 + KDX가 제공하는 다양한 소비 데이터(온라인 쇼핑, 오프라인 신용카드, 부동산 등)를 분석해주세요.  
@@ -163,6 +163,7 @@ theme(
 
 graph_cosmetics
 ```
+![](img/graph_m_cos.png){width="600"}  
 
 ```{r}
 # 기초 화장품(스킨케어)_월별 추이_ppt.12p
@@ -181,8 +182,7 @@ graph_skincare <- ggplot(summarise_skincare, aes(x = 구매연월, y = 금액합
 
 graph_skincare
 ```
-
-### 2.3 실제 분석을 위한 데이터 전처리 및 시각화
+![](img/graph_m_skin.png){width="600"}  
 
 ```{r}
 # 성별&나이 결측치 제거하기(성별 F, M, 나이 0 이상만 추출)
@@ -199,7 +199,6 @@ compare_products <- nomiss_products %>%
   summarise(금액합계 = sum(구매금액))
 ```
 
-
 ```{r}
 # 문자형 데이터 -> 날짜 데이터로 전환
 library(lubridate)
@@ -208,7 +207,6 @@ final_products <- compare_products %>%
   mutate(구매일 = ymd(구매날짜))
 ```
 
-* 시각화
 ```{r}
 # 색조화장품(메이크업 용품) 데이터 시각화 _ppt.14p
 
@@ -239,6 +237,7 @@ graph_cosmetics <- ggplot(cosmetics, aes(x = 구매일, y = 금액합계, color 
 
 graph_cosmetics
 ```
+![](img/graph_cos.png){width="600"}  
 
 ```{r}
 # 기초화장품(스킨케어) 데이터 시각화_ppt.14p
@@ -267,6 +266,8 @@ graph_skincare <- ggplot(skincare, aes(x = 구매일, y = 금액합계, color = 
 
 graph_skincare
 ```
+![](img/graph_skin.png){width="600"}  
+
 
 ### 4. Shinhancard
 
@@ -338,6 +339,8 @@ graph_sh_beauty <- ggplot(final_sh_beauty, aes(x = 구매일자, y = 구매횟�
    
 graph_sh_beauty
 ```
+![](img/graph_shinhan.png){width="600"}  
+
 
 ### 5. 네이버 키워드 검색 데이터
 #### 5.1 마스크  
@@ -376,7 +379,7 @@ graph_mask <- ggplot(final_mask, aes(x = 검색일자, y = 마스크검색량)) 
   
 graph_mask
 ```
-
+![](img/graph_mask.png){width="600"}  
 
 #### 5.2 기초 vs 색조 화장품   
 
@@ -414,7 +417,7 @@ graph_makeup <- ggplot(trans_makeup, aes(x = 검색일자, y = `색조 & 기초 
 
 graph_makeup
 ```
-
+![](img/graph_cosskin.png){width="600"}  
 
 #### 5.3 색조 중, 립 vs 아이 메이크업 키워드 데이터   
 
@@ -422,7 +425,6 @@ graph_makeup
 # (립 & 아이) 화장품 키워드 검색량 데이터 불러오기
 lipeye <- read_excel("data/메이크업 제품 비교(아이, 립).xlsx")
 ```
-
 
 ```{r}
 # 문자형 데이터를 날짜형으로 변환
@@ -450,6 +452,7 @@ graph_lipeye <- ggplot(trans_lipeye, aes(x = 검색일자, y = `립 & 아이 메
 
 graph_lipeye
 ```
+![](img/graph_lipeye.png){width="600"}  
 
 #### 5.4 마스크프루프  
 
@@ -484,3 +487,4 @@ graph_maskproof <- ggplot(trans_maskproof, aes(x = 검색일자, y = `마스크�
   
 graph_maskproof
 ```
+![](img/graph_maskproof.png){width="600"}
