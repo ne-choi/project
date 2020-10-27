@@ -64,7 +64,7 @@ pacman::p_load('dplyr', 'tidyr', 'gapminder',
 ### 2.1 기초 & 색조 화장품 엑셀 정리 
 ```{r}
 # 사용할 데이터만 정리하기(메이크업, 스킨케어)
-files <- list.files(path = "use_data", pattern = "*.xlsx", full.names = T)  
+files <- list.files(path = "data/use", pattern = "*.xlsx", full.names = T)  
 products <- sapply(files, read_excel, simplify = FALSE) %>% 
   bind_rows(.id = "id")
 
@@ -275,7 +275,7 @@ graph_skincare
 
 ```{r}
 # 신한카드 오프라인 구매 데이터 불러오기 
-shinhancard <- read_xlsx("sample/Shinhancard.xlsx")
+shinhancard <- read_xlsx("data/Shinhancard.xlsx")
 ```
 
 ```{r}
@@ -346,7 +346,7 @@ graph_sh_beauty
 ### 4.1 마스크 키워드 검색량 데이터 
 ```{r}
 # 마스크 키워드 검색량 데이터 불러오기
-mask <- read_excel("mask_keywords_data.xlsx")
+mask <- read_excel("data/mask_keywords_data.xlsx")
 ```
 
 ```{r}
@@ -384,7 +384,7 @@ graph_mask
 ### 4.2 (색조 & 기초) 화장품 키워드 검색량 데이터 
 ```{r}
 # (색조 & 기초) 화장품 키워드 검색량 데이터 불러오기
-makeup <- read_excel("색조 vs 기초 화장품 키워드 검색량.xlsx")
+makeup <- read_excel("data/색조 vs 기초 화장품 키워드 검색량.xlsx")
 ```
 
 ```{r}
@@ -424,7 +424,7 @@ graph_makeup
 ### 4.3 (립 & 아이) 화장품 키워드 검색량 데이터 
 ```{r}
 # (립 & 아이) 화장품 키워드 검색량 데이터 불러오기
-lipeye <- read_excel("메이크업 제품 비교(아이, 립).xlsx")
+lipeye <- read_excel("data/메이크업 제품 비교(아이, 립).xlsx")
 ```
 
 
@@ -459,7 +459,7 @@ graph_lipeye
 ### 4.4 (마스크프루프) 화장품 키워드 검색량 데이터 
 ```{r}
 # (마스크프루프) 화장품 키워드 검색량 데이터 불러오기
-maskproof <- read_excel("마스크프루프 키워드 데이터.xlsx")
+maskproof <- read_excel("data/마스크프루프 키워드 데이터.xlsx")
 ```
 
 ```{r}
@@ -492,5 +492,4 @@ graph_maskproof <- ggplot(trans_maskproof, aes(x = 검색일자, y = `마스크�
   
 graph_maskproof
 ```
-
 
