@@ -32,6 +32,7 @@ Tell a data story about a subset of the data science community represented in th
 <br>
 
 ## Sorce code
+[View my submission on Kaggle](https://www.kaggle.com/nechoi/the-future-of-ml-americans-vs-indians)
 
 ---
 ### **The future of ML (Americans vs Indians)**
