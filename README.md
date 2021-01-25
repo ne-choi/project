@@ -41,4 +41,18 @@
 - **선정 주제**
   - **"The future of ML (Americans vs Indians)"**  
 - **기여**: 데이터 전처리, 시각화 및 분석
-- **결과**: 
+- **결과**: This competition did not award ranking points & count towards tiers
+
+<br>
+
+:point_right: **Acea Smart Water Analytics**
+- **언어 및 작업툴**: python, jupyter notebook
+- **인원**: 1명
+- **기간**: 
+- **내용**
+  - 
+    -
+- **선정 주제**
+  - 
+- **기여**:
+- **결과**: This competition did not award ranking points & count towards tiers
