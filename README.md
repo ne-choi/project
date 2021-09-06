@@ -42,3 +42,17 @@
   - **"The future of ML (Americans vs Indians)"**  
 - **기여**: 데이터 전처리, 시각화 및 분석
 - **결과**: This competition did not award ranking points & count towards tiers
+
+<br>
+
+:point_right: **2021 금융 데이터 경진대회**  
+- **언어 및 작업툴**: python, google colab  
+- **인원**: 3명  
+- **기간**: 2021.08.01 - 2021.09.06  
+- **내용**  
+  - 금융 데이터 활성화 도모 및 금융 데이터를 활용한 다양한 아이디어를 공모 (주제 선정 자유)
+    - 주제 선정 자유  
+- **선정 주제**  
+  - **""**  
+- **기여**: 데이터 전처리 및 코드 작성, 결과 보고서 작성  
+- **결과**: 1차 심사 중
